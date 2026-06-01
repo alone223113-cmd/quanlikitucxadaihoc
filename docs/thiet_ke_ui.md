@@ -84,7 +84,7 @@
 
 ### Màn Hình 1: Đăng Nhập (Login)
 
-![Mockup Login](mockups/01_login.png)
+![Wireframe Login](wireframes/01_login.png)
 
 **Mô tả:** Màn hình toàn màn hình, không có sidebar.
 
@@ -118,7 +118,7 @@
 
 ### Màn Hình 2: Dashboard
 
-![Mockup Dashboard](mockups/02_dashboard.png)
+![Wireframe Dashboard](wireframes/02_dashboard.png)
 
 **Vùng nội dung gồm:**
 
@@ -142,7 +142,7 @@
 
 ### Màn Hình 3: Quản Lý Phòng
 
-![Mockup Phòng](mockups/03_quan_ly_phong.png)
+![Wireframe Phòng](wireframes/03_quan_ly_phong.png)
 
 **Layout:**
 ```
@@ -177,7 +177,7 @@ B201     |  B  |  2   |  6N  |    6     |   0  | 400,000₫  | [Trống]    | [�
 
 ### Màn Hình 4: Quản Lý Sinh Viên
 
-![Mockup Sinh Viên](mockups/04_quan_ly_sinh_vien.png)
+![Wireframe Sinh Viên](wireframes/04_quan_ly_sinh_vien.png)
 
 **Layout:** Bảng danh sách + Panel chi tiết (slide từ phải)
 
@@ -196,7 +196,7 @@ SV001235  | Trần Thị Bình   | KT    | KT02  | B203   | 0987654321   | [👁
 
 ### Màn Hình 5: Quản Lý Hợp Đồng
 
-![Mockup Hợp Đồng](mockups/05_quan_ly_hop_dong.png)
+![Wireframe Hợp Đồng](wireframes/05_hop_dong.png)
 
 **Wizard Đăng Ký Ở KTX (Dialog đa bước):**
 ```
@@ -221,7 +221,7 @@ Chọn SV   Chọn Phòng  Xác Nhận
 
 ### Màn Hình 6: Quản Lý Thu Phí
 
-![Mockup Thu Phí](mockups/06_quan_ly_thu_phi.png)
+![Wireframe Thu Phí](wireframes/06_thu_phi.png)
 
 **Layout:**
 ```

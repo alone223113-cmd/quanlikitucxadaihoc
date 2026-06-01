@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERD — KTX Manager</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0D1117;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    #erd-container {
+      position: relative;
+      margin: 0 auto;
+    }
+    #svg-layer {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+    .erd-table {
+      position: absolute;
+      background: #161B22;
+      border: 1.5px solid #30363D;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 2;
+      width: 250px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .table-header {
+      background: #21262D;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #58A6FF;
+      letter-spacing: 1px;
+      text-align: center;
+      border-bottom: 2px solid #388BFD;
+    }
+    .table-row {
+      display: flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-bottom: 1px solid #21262D;
+      gap: 6px;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .field-type {
+      font-size: 10px;
+      color: #6E7681;
+      width: 38px;
+      flex-shrink: 0;
+      font-style: italic;
+    }
+    .field-name {
+      font-size: 12px;
+      color: #C9D1D9;
+      flex: 1;
+    }
+    .field-key {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .key-pk { background: #BB8009; color: #fff; }
+    .key-fk { background: #1F6FEB; color: #fff; }
+    .key-uk { background: #238636; color: #fff; }
+  </style>
+</head>
+<body>
+<div id="erd-container">
+  <svg id="svg-layer"></svg>
+</div>
+
+<script>
+const ROW_H = 25;
+const HEADER_H = 38;
+const TW = 250;
+
+const TABLES = [
+  {
+    id: 'USERS', x: 20, y: 40,
+    fields: [
+      { name: 'id',            type: 'int',    key: 'PK' },
+      { name: 'username',      type: 'string' },
+      { name: 'password_hash', type: 'string' },
+      { name: 'full_name',     type: 'string' },
+      { name: 'role',          type: 'string' },
+      { name: 'is_active',     type: 'int'    },
+      { name: 'created_at',    type: 'date'   },
+    ]
+  },
+  {
+    id: 'ROOMS', x: 370, y: 40,
+    fields: [
+      { name: 'id',              type: 'int',    key: 'PK' },
+      { name: 'room_number',     type: 'string' },
+      { name: 'building',        type: 'string' },
+      { name: 'floor',           type: 'int'    },
+      { name: 'capacity',        type: 'int'    },
+      { name: 'room_type',       type: 'string' },
+      { name: 'price_per_month', type: 'float'  },
+      { name: 'status',          type: 'string' },
+      { name: 'description',     type: 'string' },
+      { name: 'created_at',      type: 'date'   },
+    ]
+  },
+  {
+    id: 'FEES', x: 720, y: 40,
+    fields: [
+      { name: 'id',              type: 'int',   key: 'PK' },
+      { name: 'room_id',         type: 'int',   key: 'FK' },
+      { name: 'month',           type: 'int'   },
+      { name: 'year',            type: 'int'   },
+      { name: 'electricity_fee', type: 'float' },
+      { name: 'water_fee',       type: 'float' },
+      { name: 'service_fee',     type: 'float' },
+      { name: 'room_fee',        type: 'float' },
+      { name: 'total_amount',    type: 'float' },
+      { name: 'paid_amount',     type: 'float' },
+      { name: 'paid_date',       type: 'date'  },
+      { name: 'status',          type: 'string'},
+      { name: 'notes',           type: 'string'},
+      { name: 'created_at',      type: 'date'  },
+    ]
+  },
+  {
+    id: 'STUDENTS', x: 340, y: 430,
+    fields: [
+      { name: 'id',               type: 'int',    key: 'PK' },
+      { name: 'id_card',          type: 'string' },
+      { name: 'full_name',        type: 'string' },
+      { name: 'date_of_birth',    type: 'date'   },
+      { name: 'gender',           type: 'string' },
+      { name: 'faculty',          type: 'string' },
+      { name: 'class_name',       type: 'string' },
+      { name: 'phone',            type: 'string' },
+      { name: 'email',            type: 'string' },
+      { name: 'hometown_address', type: 'string' },
+      { name: 'room_id',          type: 'int',    key: 'FK' },
+      { name: 'bed_number',       type: 'int'    },
+      { name: 'checkin_date',     type: 'date'   },
+      { name: 'checkout_date',    type: 'date'   },
+      { name: 'deposit',          type: 'float'  },
+      { name: 'residency_status', type: 'string' },
+      { name: 'created_at',       type: 'date'   },
+    ]
+  },
+  {
+    id: 'VIOLATIONS', x: 20, y: 430,
+    fields: [
+      { name: 'id',             type: 'int',    key: 'PK' },
+      { name: 'student_id',     type: 'int',    key: 'FK' },
+      { name: 'violation_type', type: 'string' },
+      { name: 'description',    type: 'string' },
+      { name: 'violation_date', type: 'date'   },
+      { name: 'fine_amount',    type: 'float'  },
+      { name: 'is_paid',        type: 'int'    },
+      { name: 'recorded_by',    type: 'int',    key: 'FK' },
+      { name: 'created_at',     type: 'date'   },
+    ]
+  },
+];
+
+// from = "1" side, to = "N" side
+const RELATIONS = [
+  { from: 'ROOMS',    fromSide: 'bottom', to: 'STUDENTS',  toSide: 'top'   },
+  { from: 'ROOMS',    fromSide: 'right',  to: 'FEES',      toSide: 'left'  },
+  { from: 'STUDENTS', fromSide: 'left',   to: 'VIOLATIONS', toSide: 'right' },
+  { from: 'USERS',    fromSide: 'bottom', to: 'VIOLATIONS', toSide: 'top'  },
+];
+
+function th(t) { return HEADER_H + t.fields.length * ROW_H; }
+
+function edgePt(t, side) {
+  const h = th(t);
+  if (side === 'top')    return { x: t.x + TW / 2, y: t.y };
+  if (side === 'bottom') return { x: t.x + TW / 2, y: t.y + h };
+  if (side === 'left')   return { x: t.x,           y: t.y + h / 2 };
+  if (side === 'right')  return { x: t.x + TW,      y: t.y + h / 2 };
+}
+
+// Render tables
+const container = document.getElementById('erd-container');
+const svg = document.getElementById('svg-layer');
+const tmap = {};
+
+TABLES.forEach(t => {
+  tmap[t.id] = t;
+  const div = document.createElement('div');
+  div.className = 'erd-table';
+  div.style.left = t.x + 'px';
+  div.style.top  = t.y + 'px';
+
+  let html = `<div class="table-header">${t.id}</div>`;
+  t.fields.forEach(f => {
+    let badge = '';
+    if (f.key === 'PK') badge = '<span class="field-key key-pk">PK</span>';
+    else if (f.key === 'FK') badge = '<span class="field-key key-fk">FK</span>';
+    html += `<div class="table-row">
+      <span class="field-type">${f.type}</span>
+      <span class="field-name">${f.name}</span>
+      ${badge}
+    </div>`;
+  });
+  div.innerHTML = html;
+  container.appendChild(div);
+});
+
+// Size container
+let maxX = 0, maxY = 0;
+TABLES.forEach(t => {
+  maxX = Math.max(maxX, t.x + TW + 40);
+  maxY = Math.max(maxY, t.y + th(t) + 60);
+});
+container.style.width  = maxX + 'px';
+container.style.height = maxY + 'px';
+svg.setAttribute('width',  maxX);
+svg.setAttribute('height', maxY);
+
+// Helper: offset label position away from endpoint
+function labelPos(pt, side, dist) {
+  // Offset ra NGOÀI bảng (vào vùng gap giữa 2 bảng)
+  if (side === 'top')    return { x: pt.x + 8,         y: pt.y - dist };
+  if (side === 'bottom') return { x: pt.x + 8,         y: pt.y + dist };
+  if (side === 'left')   return { x: pt.x - dist - 10, y: pt.y - 6 };
+  if (side === 'right')  return { x: pt.x + dist,      y: pt.y - 6 };
+}
+
+// Draw relations
+RELATIONS.forEach(rel => {
+  const fT = tmap[rel.from];
+  const tT = tmap[rel.to];
+  const p1 = edgePt(fT, rel.fromSide);
+  const p2 = edgePt(tT, rel.toSide);
+
+  // Control points for smooth bezier
+  let cx1, cy1, cx2, cy2;
+  const adx = Math.abs(p2.x - p1.x);
+  const ady = Math.abs(p2.y - p1.y);
+
+  if (rel.fromSide === 'bottom' && rel.toSide === 'top') {
+    const bend = Math.max(ady * 0.45, 30);
+    cx1 = p1.x; cy1 = p1.y + bend;
+    cx2 = p2.x; cy2 = p2.y - bend;
+  } else if (rel.fromSide === 'right' && rel.toSide === 'left') {
+    const bend = Math.max(adx * 0.45, 30);
+    cx1 = p1.x + bend; cy1 = p1.y;
+    cx2 = p2.x - bend; cy2 = p2.y;
+  } else if (rel.fromSide === 'left' && rel.toSide === 'right') {
+    const bend = Math.max(adx * 0.45, 30);
+    cx1 = p1.x - bend; cy1 = p1.y;
+    cx2 = p2.x + bend; cy2 = p2.y;
+  } else {
+    cx1 = p1.x; cy1 = (p1.y + p2.y) / 2;
+    cx2 = p2.x; cy2 = (p1.y + p2.y) / 2;
+  }
+
+  // Line
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${p2.x} ${p2.y}`);
+  path.setAttribute('stroke', '#58A6FF');
+  path.setAttribute('stroke-width', '1.8');
+  path.setAttribute('fill', 'none');
+  svg.appendChild(path);
+
+  // "1" label — near FROM (the "one" side)
+  const lp1 = labelPos(p1, rel.fromSide, 18);
+  const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t1.setAttribute('x', lp1.x);
+  t1.setAttribute('y', lp1.y);
+  t1.setAttribute('fill', '#3FB950');
+  t1.setAttribute('font-size', '14');
+  t1.setAttribute('font-weight', '700');
+  t1.setAttribute('font-family', 'Segoe UI, Arial, sans-serif');
+  t1.textContent = '1';
+  svg.appendChild(t1);
+
+  // "N" label — near TO (the "many" side)
+  const lp2 = labelPos(p2, rel.toSide, 18);
+  const tN = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  tN.setAttribute('x', lp2.x);
+  tN.setAttribute('y', lp2.y);
+  tN.setAttribute('fill', '#FFA657');
+  tN.setAttribute('font-size', '14');
+  tN.setAttribute('font-weight', '700');
+  tN.setAttribute('font-family', 'Segoe UI, Arial, sans-serif');
+  tN.textContent = 'N';
+  svg.appendChild(tN);
+
+  // Small dot at each endpoint
+  [p1, p2].forEach(p => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p.x);
+    c.setAttribute('cy', p.y);
+    c.setAttribute('r', '4');
+    c.setAttribute('fill', '#58A6FF');
+    svg.appendChild(c);
+  });
+});
+</script>
+</body>
+</html>
