@@ -199,35 +199,6 @@ python main.py
 
 ---
 
-## 📅 Kế Hoạch Phát Triển
-
-| Tuần | Nội dung |
-|---|---|
-| **Tuần 1** ✅ | Mô tả chức năng, phác thảo giao diện (mockup), thiết kế database |
-| **Tuần 2** | Xây dựng core: database, models, main window, login |
-| **Tuần 3** | Module Quản lý Phòng + Sinh Viên |
-| **Tuần 4** | Module Hợp đồng + Thu phí |
-| **Tuần 5** | Vi phạm + Dashboard + Báo cáo |
-| **Tuần 6** | Testing, hoàn thiện, viết báo cáo |
-
----
-
-## 👥 Thành Viên Nhóm
-
-| STT | Họ và Tên | MSSV | Vai trò |
-|---|---|---|---|
-| 1 | | | Trưởng nhóm |
-| 2 | | | Thành viên |
-| 3 | | | Thành viên |
-
----
-
-## 📄 Giấy Phép
-
-Dự án được phát triển cho mục đích học tập — Môn Lập Trình Python.
-
----
-
 <div align="center">
   <sub>🏫 Trường Đại Học — Khoa Công Nghệ Thông Tin — Năm học 2025-2026</sub>
 </div>
